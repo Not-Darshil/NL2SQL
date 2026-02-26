@@ -10,4 +10,7 @@ python-dotenv
 httpx
 sqlparse
 python-jose[cryptography]
+bcrypt==4.0.1
 passlib[bcrypt]
+email-validator
+python-multipart
