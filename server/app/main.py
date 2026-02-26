@@ -2,9 +2,24 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 from app.core.database import get_db
+from fastapi.middleware.cors import CORSMiddleware
 from app.api.api import api_router
 
 app = FastAPI(title="TableMind AI API", version="1.0.0")
+
+# Set up CORS
+origins = [
+    "http://localhost:5173",
+    "http://localhost:8000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(api_router, prefix="/api")
 
