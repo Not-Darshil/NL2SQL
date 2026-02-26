@@ -1,29 +1,47 @@
 services:
-  db:
-    image: postgres:15-alpine
+  postgres:
+    image: postgres:15
     container_name: tablemind_db
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: tablemind
-    ports:
-      - "5432:5432"
+    env_file: .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tablemind"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
 
-  server:
-    build: ./server
+  backend:
+    build:
+      context: ./server
     container_name: tablemind_server
+    env_file: .env
+    volumes:
+      - ./server:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      sh -c "
+      alembic upgrade head &&
+      uvicorn app.main:app --host 0.0.0.0 --port 8000
+      "
     ports:
       - "8000:8000"
+
+  frontend:
+    build:
+      context: ./client
+    container_name: tablemind_client
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
     environment:
-      POSTGRES_SERVER: db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: tablemind
-    depends_on:
-      - db
+      - CHOKIDAR_USEPOLLING=true
 
 volumes:
   postgres_data:
