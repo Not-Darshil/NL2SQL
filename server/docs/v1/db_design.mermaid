@@ -1,0 +1,82 @@
+erDiagram
+
+    USERS {
+        UUID id PK
+        VARCHAR full_name
+        VARCHAR email
+        VARCHAR password_hash
+        VARCHAR role
+        BOOLEAN is_active
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+
+    MENU_CATEGORIES {
+        UUID id PK
+        VARCHAR name
+        TEXT description
+        TIMESTAMP created_at
+    }
+
+    MENU_ITEMS {
+        UUID id PK
+        UUID category_id FK
+        VARCHAR name
+        TEXT description
+        NUMERIC price
+        BOOLEAN is_vegetarian
+        BOOLEAN is_spicy
+        BOOLEAN is_available
+        TEXT image_url
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+
+    ORDERS {
+        UUID id PK
+        UUID user_id FK
+        VARCHAR status
+        NUMERIC total_amount
+        TIMESTAMP cancellation_deadline
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+
+    ORDER_ITEMS {
+        UUID id PK
+        UUID order_id FK
+        UUID menu_item_id FK
+        INTEGER quantity
+        NUMERIC price_at_order
+        NUMERIC subtotal
+        TIMESTAMP created_at
+    }
+
+    PAYMENTS {
+        UUID id PK
+        UUID order_id FK
+        VARCHAR payment_method
+        VARCHAR payment_status
+        VARCHAR transaction_id
+        TIMESTAMP paid_at
+        TIMESTAMP created_at
+    }
+
+    CHAT_LOGS {
+        UUID id PK
+        UUID user_id FK
+        TEXT message
+        VARCHAR sender
+        VARCHAR intent
+        TIMESTAMP created_at
+    }
+
+    USERS ||--o{ ORDERS : places
+    USERS ||--o{ CHAT_LOGS : sends
+
+    MENU_CATEGORIES ||--o{ MENU_ITEMS : contains
+
+    ORDERS ||--|{ ORDER_ITEMS : includes
+    MENU_ITEMS ||--o{ ORDER_ITEMS : referenced_in
+
+    ORDERS ||--|| PAYMENTS : has
