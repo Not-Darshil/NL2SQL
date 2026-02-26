@@ -1,8 +1,13 @@
 fastapi
 uvicorn
-sqlalchemy
+sqlalchemy[asyncio]
+asyncpg
 psycopg2-binary
 alembic
 pydantic
 pydantic-settings
 python-dotenv
+httpx
+sqlparse
+python-jose[cryptography]
+passlib[bcrypt]
