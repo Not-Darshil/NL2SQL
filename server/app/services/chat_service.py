@@ -7,6 +7,7 @@ from app.services.agents.order_agent import order_agent
 from app.services.agents.cancellation_agent import cancellation_agent
 from app.services.agents.recommendation import recommendation_agent
 from app.services.analytics_service import analytics_service
+from app.services.llm_service import llm_service
 from app.models.chat import ChatLog
 import uuid
 
@@ -31,6 +32,7 @@ class ChatService:
             sql = await nl2sql_agent.generate_sql(message)
             if sql:
                 data = await analytics_service.execute_query(db, sql)
+                print(sql)
                 response_text = await analytics_service.format_results(message, data)
                 agent_data["sql"] = sql
                 agent_data["results"] = data
@@ -50,7 +52,9 @@ class ChatService:
             response_text = await recommendation_agent.recommend(message, db)
             
         else:
-            response_text = "I am TableMind AI, your restaurant assistant. How can I help you? You can ask about the menu, place an order, or query sales data."
+            # Dynamic response for general queries
+            system_prompt = "You are TableMind AI, a helpful restaurant assistant. Respond to the user's greeting or general question politely and briefly."
+            response_text = await llm_service.generate_response(message, system_prompt=system_prompt)
 
         # 3. Log to DB
         user_log = ChatLog(user_id=user_id, message=message, sender="user", intent=intent)

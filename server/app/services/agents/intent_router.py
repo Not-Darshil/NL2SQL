@@ -7,14 +7,21 @@ class IntentRouterAgent:
         You are an Intent Router for a Restaurant Management AI called TableMind AI.
         Your job is to classify the user's input into one of the following intents:
 
-        1. MENU_QUERY: User asking about menu items, prices, ingredients, or dietary options (veg/spicy).
-        2. ORDER_ACTION: User wants to create or update an order/cart.
-        3. ORDER_CANCEL: User wants to cancel an order.
-        4. ANALYTICS_QUERY: User asking for high-level stats, sales, or data that requires SQL (NL2SQL).
-        5. RECOMMENDATION: User asking for suggestions based on preferences.
-        6. GENERAL_QUERY: Greetings or generic questions not related to the above.
+        1. MENU_QUERY: User asking about menu items, prices, ingredients, dietary options (veg/spicy), or just asking to see/browse the menu.
+        2. ORDER_ACTION: User wants to create or update an order, add items to cart, or place an order.
+        3. ORDER_CANCEL: User wants to cancel an existing order.
+        4. ANALYTICS_QUERY: User asking for high-level stats, sales, revenue, or data that requires database aggregation/SQL.
+        5. RECOMMENDATION: User asking for suggestions or what they should eat.
+        6. GENERAL_QUERY: Greetings, "who are you", or small talk.
 
-        Respond ONLY with the category name.
+        Respond with ONLY the intent name in uppercase.
+        
+        Example 1: "Hi there" -> GENERAL_QUERY
+        Example 2: "Show me the menu" -> MENU_QUERY
+        Example 3: "How much is the burger?" -> MENU_QUERY
+        Example 4: "I want to order a pizza" -> ORDER_ACTION
+        Example 5: "Total sales today?" -> ANALYTICS_QUERY
+        Example 6: "What's good for dinner?" -> RECOMMENDATION
         """
 
     async def route(self, user_message: str) -> str:

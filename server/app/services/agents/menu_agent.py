@@ -24,8 +24,16 @@ class MenuAgent:
         response = await llm_service.generate_response(user_message, system_prompt=self.system_prompt, temperature=0.0)
         
         try:
-            filters = json.loads(response)
-        except:
+            # Clean up response if it has markdown code blocks
+            clean_response = response.strip()
+            if "```json" in clean_response:
+                clean_response = clean_response.split("```json")[1].split("```")[0].strip()
+            elif "```" in clean_response:
+                clean_response = clean_response.split("```")[1].split("```")[0].strip()
+            
+            filters = json.loads(clean_response)
+        except Exception as e:
+            print(f"Error parsing filters: {e}, Response: {response}")
             filters = {}
 
         # 2. Call MenuService
