@@ -10,8 +10,16 @@ from app.models.order import Order, OrderItem
 from app.models.payment import Payment
 from app.services.auth_service import auth_service
 
+from sqlalchemy import select
+
 async def seed_data():
     async with AsyncSessionLocal() as db:
+        # Check if already seeded
+        result = await db.execute(select(User).filter_by(email="admin@tablemind.ai"))
+        if result.scalars().first():
+            print("Database already seeded. Skipping...")
+            return
+
         # 1. Create Users
         print("Seeding Users...")
         admin = User(
@@ -90,7 +98,7 @@ async def seed_data():
         order1 = Order(
             user_id=test_user.id,
             status="completed",
-            total_amount=Decimal("29.49"), # Burger + Pizza + Cola - slight variation for realism
+            total_amount=Decimal("29.49"),
             created_at=datetime.now() - timedelta(days=2)
         )
         db.add(order1)

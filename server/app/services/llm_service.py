@@ -72,4 +72,40 @@ class LLMService:
             except Exception as e:
                 return f"Chat Error: {str(e)}"
 
+    async def check_health(self) -> Dict[str, Any]:
+        """
+        Checks if Ollama is reachable and responds.
+        """
+        url = f"{settings.OLLAMA_URL}/api/tags"
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            try:
+                response = await client.get(url)
+                if response.status_code == 200:
+                    details = response.json()
+                    available_models = [m.get("name") for m in details.get("models", [])]
+                    return {
+                        "status": "healthy" if self.model in available_models or f"{self.model}:latest" in available_models else "unhealthy",
+                        "configured_model": self.model,
+                        "available_models": available_models,
+                        "details": details
+                    }
+                else:
+                    return {
+                        "status": "unhealthy",
+                        "error": f"Ollama returned status {response.status_code}"
+                    }
+            except httpx.ConnectError as e:
+                error_msg = str(e)
+                if "address associated with hostname" in error_msg:
+                    error_msg += ". Hint: If running in Docker, ensure OLLAMA_URL uses 'host.docker.internal' instead of 'localhost' or 'ollama' unless defined in docker-compose."
+                return {
+                    "status": "unhealthy",
+                    "error": error_msg
+                }
+            except Exception as e:
+                return {
+                    "status": "unhealthy",
+                    "error": str(e)
+                }
+
 llm_service = LLMService()
